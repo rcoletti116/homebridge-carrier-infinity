@@ -1,4 +1,4 @@
-import { CharacteristicWrapper, MultiWrapper } from './base';
+import { CharacteristicWrapper, MultiWrapper, ThermostatCharacteristicWrapper } from './base';
 
 class CurrentRH extends CharacteristicWrapper {
   ctype = this.Characteristic.CurrentRelativeHumidity;
@@ -7,12 +7,22 @@ class CurrentRH extends CharacteristicWrapper {
   };
 }
 
-class TargetDehumidify extends CharacteristicWrapper {
+class TargetDehumidify extends ThermostatCharacteristicWrapper {
   ctype = this.Characteristic.RelativeHumidityDehumidifierThreshold;
+  get = async () => {
+    return await this.system.config.getHumidityActvityCoolTarget(
+      await this.getActivity(),
+    );
+  };
 }
 
-class TargetHumidify extends CharacteristicWrapper {
+class TargetHumidify extends ThermostatCharacteristicWrapper {
   ctype = this.Characteristic.RelativeHumidityHumidifierThreshold;
+  get = async () => {
+    return await this.system.config.getHumidityActvityHeatTarget(
+      await this.getActivity(),
+    );
+  };
 }
 
 

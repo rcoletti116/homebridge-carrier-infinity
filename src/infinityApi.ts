@@ -35,6 +35,11 @@ interface BaseElement {
   '$': {id: string};
 }
 
+interface HumidityActivity extends BaseElement {
+  rhtg: string[];
+  rclg: string[];
+}
+
 interface ZoneActivity extends BaseElement {
   clsp: string[];
   htsp: string[];
@@ -420,6 +425,28 @@ export class InfinityEvolutionSystemConfig extends BaseInfinityEvolutionSystemAp
       const yesterday_schedule = program_obj['day'][(now.getDay() + 8) % 7].period.filter(period => period.enabled[0] === 'on').reverse();
       return yesterday_schedule[0].activity[0];
     }
+  }
+
+  private async getHumidityActivity(activity_name: string): Promise<HumidityActivity> {
+    await this.fetch();
+    switch(activity_name) {
+      case ACTIVITY.VACATION:
+        return this.data_object.config.humidityVacation[0];
+      case ACTIVITY.AWAY:
+        return this.data_object.config.humidityAway[0];
+      default:
+        return this.data_object.config.humidityHome[0];
+    }
+  }
+
+  async getHumidityActvityHeatTarget(activity_name: string): Promise<number> {
+    const activity_obj = await this.getHumidityActivity(activity_name);
+    return Number(activity_obj.rhtg[0]) * 5;
+  }
+
+  async getHumidityActvityCoolTarget(activity_name: string): Promise<number> {
+    const activity_obj = await this.getHumidityActivity(activity_name);
+    return Number(activity_obj.rclg[0]) * 2 + 44;
   }
 
   private async getZoneActivityConfig(zone: string, activity_name: string): Promise<ZoneActivity> {
